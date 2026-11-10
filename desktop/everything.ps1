@@ -49,7 +49,7 @@ function Type-Slow($text) { foreach ($c in $text.ToCharArray()) { [System.Window
 Type-Slow 'electricity bill'
 Start-Sleep 3
 [System.Windows.Forms.SendKeys]::SendWait('^a'); Start-Sleep -Milliseconds 400
-Type-Slow 'form 16'
+Type-Slow 'form-16'
 Start-Sleep 3
 [System.Windows.Forms.SendKeys]::SendWait('^a'); Start-Sleep -Milliseconds 400
 Type-Slow '*.pdf'
