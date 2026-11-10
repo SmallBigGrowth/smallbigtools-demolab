@@ -2,7 +2,7 @@
 // Every web script records into out/ (Playwright writes a .webm; the workflow converts it to out/demo.mp4).
 import { chromium } from 'playwright';
 const b = await chromium.launch();
-const ctx = await b.newContext({ viewport: { width: 430, height: 932 }, deviceScaleFactor: 2, recordVideo: { dir: 'out', size: { width: 860, height: 1864 } } });
+const ctx = await b.newContext({ viewport: { width: 540, height: 1170 }, deviceScaleFactor: 1, recordVideo: { dir: 'out', size: { width: 540, height: 1170 } } });
 const p = await ctx.newPage();
 const pause = (ms) => p.waitForTimeout(ms);
 await p.goto('https://app.datawrapper.de/create/chart', { waitUntil: 'networkidle', timeout: 60000 });

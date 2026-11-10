@@ -108,7 +108,7 @@ const Device = ({p, beat, frames, b}) => {
   if (kind === 'card') { // finished store artwork: no device around it, just a rounded card
     return (
       <div style={{borderRadius: 36, overflow: 'hidden', boxShadow: '0 40px 120px rgba(0,0,0,0.55)', border: '2px solid rgba(255,255,255,0.10)'}}>
-        <Footage p={p} beat={beat} frames={frames} boxW={760} boxH={p.media.boxH || 1150} push={0.04} />
+        <Footage p={p} beat={beat} frames={frames} boxW={760} boxH={p.media.boxH || 1040} push={0.04} />
       </div>
     );
   }
@@ -162,7 +162,7 @@ const Beat = ({p, b, i, frames}) => {
         transform: `translateY(${(1 - enter) * 80}px) scale(${0.96 + 0.04 * enter})`, opacity: enter}}>
         <Device p={p} beat={beat} frames={frames} b={b} />
       </div>
-      {p.credit && <div style={{position: 'absolute', left: SAFE.left, bottom: SAFE.bottom - 60, fontFamily: SANS, fontSize: 24, color: b.muted}}>{p.credit}</div>}
+      {p.credit && <div style={{position: 'absolute', left: SAFE.left, bottom: SAFE.bottom - 70, fontFamily: SANS, fontSize: 24, color: b.muted}}>{p.credit}</div>}
     </AbsoluteFill>
   );
 };

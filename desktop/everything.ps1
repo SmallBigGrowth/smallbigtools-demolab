@@ -67,13 +67,18 @@ $ff = Start-Process ffmpeg -ArgumentList '-y','-loglevel','error','-f','gdigrab'
 Start-Sleep 2
 [W]::SetForegroundWindow($h) | Out-Null
 
-function Type-Slow($text) { foreach ($c in $text.ToCharArray()) { [System.Windows.Forms.SendKeys]::SendWait([string]$c); Start-Sleep -Milliseconds 140 } }
+# Type through Everything's own command line (-search) instead of keystrokes: keyboard focus on these
+# machines is unreliable, the command line always works. One letter at a time so it looks typed.
+function Type-Slow($text) {
+  for ($i = 1; $i -le $text.Length; $i++) {
+    Start-Process $exe -ArgumentList '-nonewwindow', '-search', ('"' + $text.Substring(0, $i) + '"')
+    Start-Sleep -Milliseconds 160
+  }
+}
 Type-Slow 'electricity bill'
 Start-Sleep 3
-[System.Windows.Forms.SendKeys]::SendWait('^a'); Start-Sleep -Milliseconds 400
 Type-Slow 'form-16'
 Start-Sleep 3
-[System.Windows.Forms.SendKeys]::SendWait('^a'); Start-Sleep -Milliseconds 400
 Type-Slow '*.pdf'
 Start-Sleep 4
 
