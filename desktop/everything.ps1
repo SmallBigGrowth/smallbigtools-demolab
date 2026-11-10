@@ -19,7 +19,7 @@ Invoke-WebRequest 'https://www.voidtools.com/Everything-1.4.1.1032.x64.zip' -Out
 Expand-Archive $zip "$env:TEMP\everything" -Force
 $exe = "$env:TEMP\everything\Everything.exe"
 # Bigger text so it stays readable once the video is cropped to a phone screen (settings from voidtools' ini docs)
-Set-Content "$env:TEMP\everything\Everything.ini" "[Everything]`r`napp_data=0`r`nresult_list_font=Segoe UI`r`nresult_list_font_size=26`r`nsearch_edit_font=Segoe UI`r`nsearch_edit_font_size=30`r`n"
+Set-Content "$env:TEMP\everything\Everything.ini" "[Everything]`r`napp_data=0`r`nresult_list_font=Segoe UI`r`nresult_list_font_size=24`r`nsearch_edit_font=Segoe UI`r`nsearch_edit_font_size=30`r`nname_column_width=620`r`npath_column_width=560`r`nsize_column_width=150`r`ndate_modified_column_width=260`r`n"
 
 Start-Process $exe
 Add-Type -AssemblyName Microsoft.VisualBasic
