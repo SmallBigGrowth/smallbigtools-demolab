@@ -18,6 +18,8 @@ $zip = "$env:TEMP\everything.zip"
 Invoke-WebRequest 'https://www.voidtools.com/Everything-1.4.1.1032.x64.zip' -OutFile $zip
 Expand-Archive $zip "$env:TEMP\everything" -Force
 $exe = "$env:TEMP\everything\Everything.exe"
+# Bigger text so it stays readable once the video is cropped to a phone screen (settings from voidtools' ini docs)
+Set-Content "$env:TEMP\everything\Everything.ini" "[Everything]`r`napp_data=0`r`nresult_list_font=Segoe UI`r`nresult_list_font_size=26`r`nsearch_edit_font=Segoe UI`r`nsearch_edit_font_size=30`r`n"
 
 Start-Process $exe
 Add-Type -AssemblyName Microsoft.VisualBasic
@@ -28,7 +30,6 @@ Start-Sleep 1
 # Maximise (Win+Up is unreliable without a user session, so use the window menu)
 [System.Windows.Forms.SendKeys]::SendWait('% x'); Start-Sleep 1
 # Zoom the results so text stays readable once the video is cropped to a phone screen
-1..6 | ForEach-Object { [System.Windows.Forms.SendKeys]::SendWait('^{ADD}'); Start-Sleep -Milliseconds 200 }
 
 # The first index of the runner's large C: drive takes a while. Wait until a known file shows up in
 # Everything's results (checked with its official command-line client) before recording.
