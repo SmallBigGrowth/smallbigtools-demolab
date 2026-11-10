@@ -30,7 +30,7 @@
         "beats": [
           {"from": 2.2, "to": 5.2, "focus": [0, 0, 0.45, 0.24], "hookFocus": [0, 0, 0.5, 0.4], "caption": "everything you copy, *saved*"},
           {"from": 6.0, "to": 9.5, "focus": [0, 0, 0.45, 0.24], "caption": "type a word to *find it*"},
-          {"from": 12.0, "to": 16.0, "focus": [0, 0, 0.45, 0.24], "caption": "paste it back in *one key*"}
+          {"from": 12.0, "to": 16.0, "focus": [0, 0, 0.45, 0.24], "caption": "find *any old copy* in seconds"}
         ],
         "facts": [["Price", "Free (open source, MIT)"], ["Works on", "Mac, macOS 14 Sonoma or later"], ["Your data", "Stays on your Mac"]],
         "verdict": "The clipboard history macOS should have built in.",
