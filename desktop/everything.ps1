@@ -19,18 +19,31 @@ Invoke-WebRequest 'https://www.voidtools.com/Everything-1.4.1.1032.x64.zip' -Out
 Expand-Archive $zip "$env:TEMP\everything" -Force
 $exe = "$env:TEMP\everything\Everything.exe"
 
-# Start recording the whole desktop
-$ff = Start-Process ffmpeg -ArgumentList '-y','-loglevel','error','-f','gdigrab','-framerate','30','-draw_mouse','1','-i','desktop','-t','26','-c:v','libx264','-preset','veryfast','-pix_fmt','yuv420p',"$out\everything-raw.mp4" -PassThru -NoNewWindow
-Start-Sleep 1
-
 Start-Process $exe
-Start-Sleep 5   # indexing the NTFS drive takes a few seconds on first run
 Add-Type -AssemblyName Microsoft.VisualBasic
 Add-Type -AssemblyName System.Windows.Forms
+Start-Sleep 3
 [Microsoft.VisualBasic.Interaction]::AppActivate((Get-Process Everything).Id) | Out-Null
 Start-Sleep 1
 # Maximise (Win+Up is unreliable without a user session, so use the window menu)
 [System.Windows.Forms.SendKeys]::SendWait('% x'); Start-Sleep 1
+
+# The first index of the runner's large C: drive takes a while. Wait until a known file shows up in
+# Everything's results (checked with its official command-line client) before recording.
+Invoke-WebRequest 'https://www.voidtools.com/ES-1.1.0.30.x64.zip' -OutFile "$env:TEMP\es.zip" -ErrorAction SilentlyContinue
+if (Test-Path "$env:TEMP\es.zip") { Expand-Archive "$env:TEMP\es.zip" "$env:TEMP\es" -Force }
+$es = Get-ChildItem "$env:TEMP\es" -Filter es.exe -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+for ($i = 0; $i -lt 60; $i++) {
+  if ($es) { $hit = & $es.FullName 'form-16-2025.pdf' 2>$null; if ($hit) { Write-Host "Index ready after $($i*3)s"; break } }
+  elseif ($i -ge 30) { break }
+  Start-Sleep 3
+}
+Start-Sleep 2
+[Microsoft.VisualBasic.Interaction]::AppActivate((Get-Process Everything).Id) | Out-Null
+
+# Start recording the whole desktop
+$ff = Start-Process ffmpeg -ArgumentList '-y','-loglevel','error','-f','gdigrab','-framerate','30','-draw_mouse','1','-i','desktop','-t','24','-c:v','libx264','-preset','veryfast','-pix_fmt','yuv420p',"$out\everything-raw.mp4" -PassThru -NoNewWindow
+Start-Sleep 2
 
 function Type-Slow($text) { foreach ($c in $text.ToCharArray()) { [System.Windows.Forms.SendKeys]::SendWait([string]$c); Start-Sleep -Milliseconds 140 } }
 Type-Slow 'electricity bill'
