@@ -4,7 +4,9 @@
 set -euo pipefail
 mkdir -p out
 
-brew install --cask maccy && xattr -dr com.apple.quarantine /Applications/Maccy.app || true >/dev/null
+for i in 1 2 3; do brew install --cask maccy && break; echo "brew install failed, retry $i"; sleep 10; done
+[ -d /Applications/Maccy.app ] || { echo "Maccy did not install"; exit 1; }
+xattr -dr com.apple.quarantine /Applications/Maccy.app || true
 brew install ffmpeg >/dev/null
 
 # Throwaway machine: grant screen recording and accessibility so the script can record and press keys.
@@ -18,7 +20,7 @@ for c in /bin/bash /usr/bin/osascript "$(brew --prefix)/bin/ffmpeg" /usr/sbin/sc
 done
 grant kTCCServiceAccessibility org.p0deje.Maccy || true
 
-open -a Maccy; sleep 4
+open /Applications/Maccy.app; sleep 4
 osascript -e 'tell application "System Events" to key code 53' || true   # dismiss any first-run window
 
 # Things a person might copy during a day (all made up)
