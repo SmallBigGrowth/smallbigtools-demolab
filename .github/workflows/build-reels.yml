@@ -126,13 +126,20 @@ jobs:
             fs.writeFileSync("work/tool-reel.json", JSON.stringify(spec, null, 2));
           ' "${{ needs.plan.outputs.queue }}" "${{ matrix.t.slug }}"
           cat work/tool-reel.json
+      - name: Voiceover (Kokoro, free, on the runner's CPU)
+        working-directory: voice
+        run: npm ci --no-audit --no-fund && node make.mjs ../work
       - name: Render
         working-directory: reel
         run: |
           npm ci --no-audit --no-fund
           npx remotion render src/index.js ToolReel ../work/reel.mp4 --props=../work/tool-reel.json --public-dir=../work --codec=h264 --crf=18 --enforce-audio-track --log=error
           d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 ../work/reel.mp4)
-          ffmpeg -y -loglevel error -i ../work/reel.mp4 -vf "fps=8/$d,scale=270:480,tile=8x1:padding=8:color=white" -frames:v 1 ../work/contact.png
+          for i in 0 1 2 3 4 5 6 7; do ffmpeg -y -loglevel error -ss $(python3 -c "print(round($d*($i+0.6)/8,2))") -i ../work/reel.mp4 -frames:v 1 -vf scale=270:480 ../work/c$i.png; done
+          ffmpeg -y -loglevel error -i ../work/c%d.png -vf "tile=8x1:padding=8:color=white" -frames:v 1 ../work/contact.png && rm ../work/c?.png
+          n=$(node -e "const p=require('../work/tool-reel.json');console.log(3+(p.beats||[]).length)")
+          mkdir -p ../work/carousel
+          for i in $(seq 0 $((n-1))); do npx remotion still src/index.js ToolCarousel ../work/carousel/slide-$((i+1)).png --frame=$i --props=../work/tool-reel.json --public-dir=../work --log=error; done
       - uses: actions/upload-artifact@v4
         with:
           name: 'reel-${{ matrix.t.slug }}'
@@ -140,4 +147,6 @@ jobs:
             work/reel.mp4
             work/contact.png
             work/tool-reel.json
+            work/carousel/
+            work/vo/
           retention-days: 30
