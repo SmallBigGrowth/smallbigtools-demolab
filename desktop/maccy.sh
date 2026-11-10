@@ -4,7 +4,7 @@
 set -euo pipefail
 mkdir -p out
 
-brew install --cask --no-quarantine maccy >/dev/null
+brew install --cask maccy && xattr -dr com.apple.quarantine /Applications/Maccy.app || true >/dev/null
 brew install ffmpeg >/dev/null
 
 # Throwaway machine: grant screen recording and accessibility so the script can record and press keys.
