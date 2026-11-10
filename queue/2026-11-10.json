@@ -1,0 +1,94 @@
+{
+  "week": "2026-11-10",
+  "research": "Smallbigtools weekly research, 9 Nov 2026 (claude/research/2026-11-09.md in the Smallbigtools project). Facts below were re-checked on official pages by the research manager on 9 Nov.",
+  "tools": [
+    {
+      "slug": "everything",
+      "demo": {"kind": "windows", "script": "desktop/everything.ps1"},
+      "reel": {
+        "tool": {"name": "Everything", "by": "voidtools", "platforms": "Windows"},
+        "hook": "Windows search is slow.\nThis finds files *instantly.*",
+        "media": {"frame": "window", "boxH": 700},
+        "beats": [
+          {"from": 2.5, "to": 6.5, "focus": [0, 0, 0.5, 0.4], "hookFocus": [0, 0, 0.35, 0.6], "caption": "type any part of a *file name*"},
+          {"from": 9.0, "to": 12.5, "focus": [0, 0, 0.5, 0.4], "caption": "results *as you type.* no waiting."},
+          {"from": 13.5, "to": 18.5, "focus": [0, 0, 0.5, 0.4], "caption": "every *PDF* on your PC, in one list"}
+        ],
+        "facts": [["Price", "Free (freeware)"], ["Works on", "Windows"], ["Searches", "File and folder names"], ["Sign-up", "None"]],
+        "verdict": "Install it once. Never wait for Windows search again.",
+        "cta": {"keyword": "FILES", "line": "and I'll DM you the official download link"},
+        "sources": ["https://www.voidtools.com/faq/"]
+      }
+    },
+    {
+      "slug": "maccy",
+      "demo": {"kind": "mac", "script": "desktop/maccy.sh"},
+      "reel": {
+        "tool": {"name": "Maccy", "by": "open source", "platforms": "Mac"},
+        "hook": "You copied it.\nThen you copied *something else.*",
+        "media": {"frame": "window", "boxH": 560},
+        "beats": [
+          {"from": 2.2, "to": 5.2, "focus": [0, 0, 0.45, 0.24], "hookFocus": [0, 0, 0.5, 0.4], "caption": "everything you copy, *saved*"},
+          {"from": 6.0, "to": 9.5, "focus": [0, 0, 0.45, 0.24], "caption": "type a word to *find it*"},
+          {"from": 12.0, "to": 16.0, "focus": [0, 0, 0.45, 0.24], "caption": "paste it back in *one key*"}
+        ],
+        "facts": [["Price", "Free (open source, MIT)"], ["Works on", "Mac, macOS 14 Sonoma or later"], ["Your data", "Stays on your Mac"]],
+        "verdict": "The clipboard history macOS should have built in.",
+        "cta": {"keyword": "COPY", "line": "and I'll DM you the official link"},
+        "sources": ["https://maccy.app", "https://github.com/p0deje/Maccy"]
+      }
+    },
+    {
+      "slug": "datawrapper",
+      "demo": {"kind": "web", "script": "web/datawrapper.mjs"},
+      "reel": {
+        "tool": {"name": "Datawrapper", "by": "Datawrapper GmbH", "platforms": "Web"},
+        "hook": "Excel charts look *ugly.*\nThis one's free.",
+        "media": {"frame": "phone"},
+        "beats": [
+          {"from": 3.5, "to": 7.0, "focus": [0, 0, 1, 1], "hookFocus": [0, 0.3, 1, 0.5], "caption": "paste your data, or try *example data*"},
+          {"from": 8.0, "to": 11.5, "focus": [0, 0, 1, 1], "caption": "pick a *chart type*"},
+          {"from": 13.0, "to": 17.0, "focus": [0, 0, 1, 1], "caption": "a clean chart, *ready to share*"}
+        ],
+        "facts": [["Free plan", "Unlimited charts"], ["Export", "PNG images"], ["Try it", "No account needed"], ["The catch", "Free charts carry a Datawrapper credit"]],
+        "verdict": "For reports and slides that need to look professional.",
+        "cta": {"keyword": "CHART", "line": "and I'll DM you the link"},
+        "sources": ["https://www.datawrapper.de/pricing", "https://www.datawrapper.de"]
+      }
+    },
+    {
+      "slug": "fold",
+      "demo": {"kind": "store", "appId": 1626994334, "country": "in", "store": "iphone"},
+      "reel": {
+        "tool": {"name": "Fold", "by": "Lunchbrake Classic Pvt Ltd", "platforms": "iPhone"},
+        "hook": "Where did my *salary* go?\nOne app shows.",
+        "beats": [
+          {"screen": 0, "dur": 3, "focus": [0, 0, 1, 1], "hookFocus": [0, 0.15, 1, 0.6], "caption": "all your *bank accounts* in one place"},
+          {"screen": 2, "dur": 3, "focus": [0, 0, 1, 1], "caption": "spending tracked *automatically*"},
+          {"screen": 4, "dur": 3, "focus": [0, 0, 1, 1], "caption": "see where your *money goes* each month"}
+        ],
+        "facts": [["Free plan", "Fold Lite"], ["Covers", "Banks, 5 cards, MFs, stocks, EPF, NPS"], ["Fold Plus", "₹999/yr or ₹349/mo"], ["Works on", "iPhone, iOS 16+"]],
+        "verdict": "Free covers most people. Read its privacy page before linking banks.",
+        "cta": {"keyword": "MONEY", "line": "and I'll DM you the App Store link"},
+        "sources": ["https://fold.money/faq", "https://apps.apple.com/in/app/fold-money/id1626994334"]
+      }
+    },
+    {
+      "slug": "spark",
+      "demo": {"kind": "store", "appId": 997102246, "country": "in", "store": "iphone"},
+      "reel": {
+        "tool": {"name": "Spark Mail", "by": "Readdle", "platforms": "iPhone"},
+        "hook": "4 email accounts.\n*One* inbox.",
+        "beats": [
+          {"screen": 2, "dur": 3, "focus": [0, 0, 1, 1], "hookFocus": [0, 0.2, 1, 0.6], "caption": "*every account* in one inbox"},
+          {"screen": 4, "dur": 3, "focus": [0, 0, 1, 1], "caption": "screen and *block* new senders"},
+          {"screen": 5, "dur": 3, "focus": [0, 0, 1, 1], "caption": "clear email with *swipes*"}
+        ],
+        "facts": [["Free plan", "Unlimited email accounts"], ["Includes", "Smart Inbox, notifications, calendar"], ["Spark Plus", "$10/month"], ["Note", "Some email is stored on its servers for features"]],
+        "verdict": "Best if you juggle work and personal email.",
+        "cta": {"keyword": "MAIL", "line": "and I'll DM you the link"},
+        "sources": ["https://sparkmailapp.com/pricing", "https://sparkmailapp.com/legal/privacy-app"]
+      }
+    }
+  ]
+}

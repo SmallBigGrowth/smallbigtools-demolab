@@ -42,11 +42,30 @@ for ($i = 0; $i -lt 60; $i++) {
   Start-Sleep 3
 }
 Start-Sleep 2
-[Microsoft.VisualBasic.Interaction]::AppActivate((Get-Process Everything).Id) | Out-Null
+# Bring Everything to the front for real and put the cursor in its search box: click the box, then park
+# the mouse in the empty bottom-right corner so no tooltip pops up over the results.
+Add-Type @'
+using System; using System.Runtime.InteropServices;
+public static class W {
+  [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);
+  [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
+  [DllImport("user32.dll")] public static extern void mouse_event(int f, int x, int y, int d, int e);
+  public static void Click(int x, int y) { SetCursorPos(x, y); mouse_event(2, 0, 0, 0, 0); mouse_event(4, 0, 0, 0, 0); }
+}
+'@
+$h = (Get-Process Everything).MainWindowHandle
+[W]::ShowWindow($h, 3) | Out-Null   # 3 = maximise
+[W]::SetForegroundWindow($h) | Out-Null
+Start-Sleep 1
+[W]::Click(900, 76)                 # the search box (maximised window, 1920x1080)
+Start-Sleep -Milliseconds 300
+[W]::SetCursorPos(1880, 960) | Out-Null
 
 # Start recording the whole desktop
-$ff = Start-Process ffmpeg -ArgumentList '-y','-loglevel','error','-f','gdigrab','-framerate','30','-draw_mouse','1','-i','desktop','-t','24','-c:v','libx264','-preset','veryfast','-pix_fmt','yuv420p',"$out\everything-raw.mp4" -PassThru -NoNewWindow
+$ff = Start-Process ffmpeg -ArgumentList '-y','-loglevel','error','-f','gdigrab','-framerate','30','-draw_mouse','1','-i','desktop','-t','24','-c:v','libx264','-preset','veryfast','-pix_fmt','yuv420p',"$out\demo.mp4" -PassThru -NoNewWindow
 Start-Sleep 2
+[W]::SetForegroundWindow($h) | Out-Null
 
 function Type-Slow($text) { foreach ($c in $text.ToCharArray()) { [System.Windows.Forms.SendKeys]::SendWait([string]$c); Start-Sleep -Milliseconds 140 } }
 Type-Slow 'electricity bill'

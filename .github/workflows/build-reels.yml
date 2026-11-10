@@ -1,0 +1,143 @@
+name: Build reels
+# Records every tool in a queue file on the right kind of throwaway machine, then renders each Reel.
+# Runs when a queue/*.json file is pushed, or by hand: gh workflow run build-reels.yml -f queue=queue/2026-11-10.json
+on:
+  push:
+    paths: ['queue/*.json']
+  workflow_dispatch:
+    inputs:
+      queue: { description: 'Queue file, e.g. queue/2026-11-10.json', required: true }
+      only: { description: 'Only this slug (optional)', required: false, default: '' }
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      queue: ${{ steps.q.outputs.queue }}
+      all: ${{ steps.q.outputs.all }}
+      windows: ${{ steps.q.outputs.windows }}
+      mac: ${{ steps.q.outputs.mac }}
+      web: ${{ steps.q.outputs.web }}
+      store: ${{ steps.q.outputs.store }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - id: q
+        run: |
+          Q="${{ inputs.queue }}"
+          [ -n "$Q" ] || Q=$(git diff --name-only HEAD~1 HEAD -- 'queue/*.json' | tail -1)
+          echo "queue=$Q" >> "$GITHUB_OUTPUT"
+          ONLY="${{ inputs.only }}"
+          sel() { jq -c --arg k "$1" --arg only "$ONLY" '[.tools[] | select(($only == "" or .slug == $only) and ($k == "" or .demo.kind == $k)) | {slug, script: .demo.script, app: (.demo.appId // ""), country: (.demo.country // "in"), store: (.demo.store // "iphone")}]' "$Q"; }
+          for k in windows mac web store; do echo "$k=$(sel $k)" >> "$GITHUB_OUTPUT"; done
+          echo "all=$(sel '')" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+  windows:
+    needs: plan
+    if: needs.plan.outputs.windows != '[]'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    strategy: { fail-fast: false, matrix: { t: '${{ fromJSON(needs.plan.outputs.windows) }}' } }
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: Set-DisplayResolution -Width 1920 -Height 1080 -Force
+      - run: choco install ffmpeg -y --no-progress
+      - shell: pwsh
+        run: ./${{ matrix.t.script }}
+      - uses: actions/upload-artifact@v4
+        with: { name: 'footage-${{ matrix.t.slug }}', path: out/, retention-days: 14 }
+
+  mac:
+    needs: plan
+    if: needs.plan.outputs.mac != '[]'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    strategy: { fail-fast: false, matrix: { t: '${{ fromJSON(needs.plan.outputs.mac) }}' } }
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash ${{ matrix.t.script }}
+      - uses: actions/upload-artifact@v4
+        with: { name: 'footage-${{ matrix.t.slug }}', path: out/, retention-days: 14 }
+
+  web:
+    needs: plan
+    if: needs.plan.outputs.web != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy: { fail-fast: false, matrix: { t: '${{ fromJSON(needs.plan.outputs.web) }}' } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: node ${{ matrix.t.script }}
+      - run: ffmpeg -y -loglevel error -i "$(ls out/*.webm | head -1)" -c:v libx264 -pix_fmt yuv420p -crf 20 out/demo.mp4 && rm out/*.webm
+      - uses: actions/upload-artifact@v4
+        with: { name: 'footage-${{ matrix.t.slug }}', path: out/, retention-days: 14 }
+
+  store:
+    needs: plan
+    if: needs.plan.outputs.store != '[]'
+    runs-on: ubuntu-latest
+    strategy: { fail-fast: false, matrix: { t: '${{ fromJSON(needs.plan.outputs.store) }}' } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node store/screens.mjs "${{ matrix.t.app }}" "${{ matrix.t.country }}" "${{ matrix.t.store }}"
+      - uses: actions/upload-artifact@v4
+        with: { name: 'footage-${{ matrix.t.slug }}', path: out/, retention-days: 14 }
+
+  render:
+    needs: [plan, windows, mac, web, store]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy: { fail-fast: false, matrix: { t: '${{ fromJSON(needs.plan.outputs.all) }}' } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/download-artifact@v4
+        with: { name: 'footage-${{ matrix.t.slug }}', path: work/ }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Build the spec
+        run: |
+          node -e '
+            const fs = require("fs"), cp = require("child_process");
+            const q = JSON.parse(fs.readFileSync(process.argv[1]));
+            const t = q.tools.find((x) => x.slug === process.argv[2]);
+            const spec = {...t.reel};
+            if (fs.existsSync("work/media.json")) {
+              const m = JSON.parse(fs.readFileSync("work/media.json"));
+              spec.media = {...m, ...(t.reel.media || {})};
+              if (m.icon && !spec.tool.icon) spec.tool.icon = m.icon;
+              if (m.credit && !spec.credit) spec.credit = m.credit;
+            } else {
+              const [w, h] = cp.execSync("ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 work/demo.mp4").toString().trim().split(",").map(Number);
+              spec.media = {type: "video", src: "demo.mp4", width: w, height: h, frame: "window", ...(t.reel.media || {})};
+            }
+            fs.writeFileSync("work/tool-reel.json", JSON.stringify(spec, null, 2));
+          ' "${{ needs.plan.outputs.queue }}" "${{ matrix.t.slug }}"
+          cat work/tool-reel.json
+      - name: Render
+        working-directory: reel
+        run: |
+          npm ci --no-audit --no-fund
+          npx remotion render src/index.js ToolReel ../work/reel.mp4 --props=../work/tool-reel.json --public-dir=../work --codec=h264 --crf=18 --enforce-audio-track --log=error
+          d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 ../work/reel.mp4)
+          ffmpeg -y -loglevel error -i ../work/reel.mp4 -vf "fps=8/$d,scale=270:480,tile=8x1:padding=8:color=white" -frames:v 1 ../work/contact.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 'reel-${{ matrix.t.slug }}'
+          path: |
+            work/reel.mp4
+            work/contact.png
+            work/tool-reel.json
+          retention-days: 30

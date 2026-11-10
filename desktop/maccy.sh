@@ -27,7 +27,7 @@ for t in "Meeting at 4pm with Riya - Zoom link in invite" "HDFC0001234" "https:/
 done
 
 screen=$(ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep -m1 -oE '\[[0-9]+\] Capture screen' | grep -oE '[0-9]+' || echo 1)
-ffmpeg -y -loglevel error -f avfoundation -framerate 30 -capture_cursor 1 -i "${screen}:none" -t 18 -c:v libx264 -preset veryfast -pix_fmt yuv420p out/maccy-raw.mp4 &
+ffmpeg -y -loglevel error -f avfoundation -framerate 30 -capture_cursor 1 -i "${screen}:none" -t 18 -c:v libx264 -preset veryfast -pix_fmt yuv420p out/demo.mp4 &
 FF=$!
 sleep 2
 # Open Maccy (default shortcut Shift+Cmd+C), then type to search the history

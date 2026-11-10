@@ -1,0 +1,13 @@
+{
+  "name": "smallbigtools-reel",
+  "private": true,
+  "description": "Renders a tool-reel.json spec into a 1080x1920 SmallBigTools Reel.",
+  "scripts": { "studio": "remotion studio src/index.js" },
+  "dependencies": {
+    "@remotion/cli": "4.0.540",
+    "@remotion/google-fonts": "4.0.540",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.540"
+  }
+}
