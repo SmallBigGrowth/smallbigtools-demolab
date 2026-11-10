@@ -1,0 +1,41 @@
+name: Record desktop demo
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "Which app to record"
+        required: true
+        type: choice
+        options: [everything, maccy]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    if: inputs.app == 'everything'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Screen size
+        shell: pwsh
+        run: Set-DisplayResolution -Width 1920 -Height 1080 -Force
+      - name: Install ffmpeg
+        run: choco install ffmpeg -y --no-progress
+      - name: Record
+        shell: pwsh
+        run: ./desktop/everything.ps1
+      - uses: actions/upload-artifact@v4
+        with: { name: everything, path: out/, retention-days: 7 }
+
+  mac:
+    if: inputs.app == 'maccy'
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record
+        run: bash desktop/maccy.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: maccy, path: out/, retention-days: 7 }
